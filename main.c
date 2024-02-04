@@ -207,16 +207,22 @@ int main(int argc, char *argv[])
 	if(sts == 1)
 	{
 		handle_close();
-		if(list) libusb_free_device_list(list, 1);
-
-		cnt = libusb_get_device_list(NULL, &list);
-		if(cnt < 0) fprintf(stderr, "error\tlibusb: failed to get device list\n");
-
-		sts = find_usb_device(argv[2], flash_loader);
-		if(sts != 0)
+#define RETRY 7
+		for(uint32_t i = 0; i < RETRY; i++)
 		{
-			fprintf(stderr, "error:\tfailed to reboot device \"%s\" 2nd time\n", argv[2]);
-			return ERR_REBOOT;
+			if(list) libusb_free_device_list(list, 1);
+
+			cnt = libusb_get_device_list(NULL, &list);
+			if(cnt < 0) fprintf(stderr, "error\tlibusb: failed to get device list\n");
+
+			sts = find_usb_device(argv[2], flash_loader);
+			if(sts != 0 && i == RETRY - 1)
+			{
+				fprintf(stderr, "error:\tfailed to reboot device \"%s\" 2nd time\n", argv[2]);
+				return ERR_REBOOT;
+			}
+			if(!sts) break;
+			delay_ms(200);
 		}
 	}
 	else if(sts != 0)
@@ -275,11 +281,14 @@ int main(int argc, char *argv[])
 
 	fprintf(stderr, errc ? "error:\tupdate failed\n" : "info:\tOK, exiting...\n");
 
-	sts = dfu_reboot();
-	if(sts < 0)
+	// if(!flash_loader)
 	{
-		fprintf(stderr, "error:\tfailed to reboot: %s\n", libusb_err2str(sts));
-		errc = ERR_REBOOT;
+		sts = dfu_reboot();
+		if(sts < 0)
+		{
+			fprintf(stderr, "error:\tfailed to reboot: %s\n", libusb_err2str(sts));
+			errc = ERR_REBOOT;
+		}
 	}
 
 	return errc;
