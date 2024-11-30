@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-#define USB_VID_STM 0x0483 // STMicroelectronics
 #define REBOOT_TO 400
 #define RETRY_CNT 3
 #define QUANT_FLASH 256
@@ -71,7 +70,6 @@ static int find_usb_device(const char *name, bool is_bootloader)
 		struct libusb_device_descriptor desc;
 		int sts = libusb_get_device_descriptor(dev, &desc);
 		if(sts < 0) continue;
-		if(desc.idVendor != USB_VID_STM) continue;
 		sts = libusb_open(dev, &handle);
 		if(sts < 0) continue;
 
@@ -196,7 +194,7 @@ int main(int argc, char *argv[])
 	int sts = libusb_init(NULL);
 	if(sts < 0) fprintf(stderr, "error:\tfailed to initialize libusb: %s\n", libusb_err2str(sts));
 
-	libusb_set_option(NULL, LIBUSB_OPTION_LOG_LEVEL, 3);
+	libusb_set_option(NULL, LIBUSB_OPTION_LOG_LEVEL, 2);
 
 	cnt = libusb_get_device_list(NULL, &list);
 	if(cnt < 0) fprintf(stderr, "error\tlibusb: failed to get device list\n");
