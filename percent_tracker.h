@@ -15,7 +15,7 @@ typedef struct
 } progress_tracker_t;
 
 #ifndef PERC_TRACKER_SCALER
-#define PERC_TRACKER_SCALER 100.0
+#define PERC_TRACKER_SCALER ((double)(200.0))
 #endif
 
 #define PERCENT_TRACKER_INIT(TRK) \
@@ -28,12 +28,12 @@ typedef struct
 #define PERCENT_TRACKER_TRACK(TR, val, FUN)                                                        \
 	if(TR.progress_capt < round(PERC_TRACKER_SCALER * (double)(val)))                              \
 	{                                                                                              \
-		TR.progress_capt = round(PERC_TRACKER_SCALER * (double)(val));                             \
-		TR.progress = TR.progress_capt / PERC_TRACKER_SCALER;                                      \
+		TR.progress_capt = (long)round(PERC_TRACKER_SCALER * (double)(val));                       \
+		TR.progress = (double)TR.progress_capt / PERC_TRACKER_SCALER;                              \
 		struct timeval t1;                                                                         \
 		gettimeofday(&t1, NULL);                                                                   \
 		TR.time_ms_pass = (t1.tv_sec - TR.t0.tv_sec) * 1000 + (t1.tv_usec - TR.t0.tv_usec) / 1000; \
-		TR.time_ms_est = ((double)TR.time_ms_pass / TR.progress);                                  \
+		TR.time_ms_est = (long)((double)TR.time_ms_pass / TR.progress);                            \
 		FUN;                                                                                       \
 	}
 

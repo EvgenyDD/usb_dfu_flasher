@@ -1,5 +1,5 @@
 #######################################
-# VERSION 1
+#           VERSION 2
 # #####       Manual:             #####
 #
 # 	EXE_NAME=my_prj
@@ -13,7 +13,7 @@
 # 	MAKE_STATIC_LIB=yes
 #   PPDEFS=STM32 VAR0=12
 # 
-# 	BUILDDIR = build$(TCHAIN)
+# 	BUILDDIR = build
 # 
 #   EXT_LIBS+=setupapi
 #   LIBDIR+=
@@ -108,6 +108,8 @@ OBJDIR:=$(BUILDDIR)/obj
 UPDIR:=_updir_
 
 EXT_OBJECTS+=$(FOREIGN_MAKE_TARGETS)
+
+SELFDEP +=Makefile
 
 #######################################
 # C/C++ flags tuning
@@ -211,18 +213,26 @@ all: $(ARTEFACTS)
 
 debug-make:
 	@echo "C:        " $(C_SOURCES)
+	@echo ""
 	@echo "CXX:      " $(CXX_SOURCES)
+	@echo ""
 	@echo "S:        " $(S_SOURCES)
 	@echo ""
 	@echo "Co:       " $(C_OBJECTS)
+	@echo ""
 	@echo "CXXo:     " $(CXX_OBJECTS)
+	@echo ""
 	@echo "So:       " $(S_OBJECTS)
 	@echo ""
 	@echo "Lnk Obj:  " $(LINK_OBJECTS)
+	@echo ""
 	@echo "Artefacts:" $(ARTEFACTS)
 	@echo ""
 	@echo "Sources:  " $(SOURCES)
+	@echo ""
 	@echo "INCDIR:   " $(INCDIR)
+	@echo ""
+	@echo "EXT OBJ:  " $(EXT_OBJECTS)
 
 ifneq ($(FOREIGN_MAKE_TARGETS),)
 clean: clean_foreign_targets
@@ -230,8 +240,6 @@ endif
 
 clean:
 	$(Q)rm -fr $(BUILDDIR)
-
-$(LINK_OBJECTS): Makefile
 
 #######################################
 # assembler targets
@@ -293,19 +301,19 @@ $(OBJDIR)/%.o: $$(subst $(UPDIR),..,%.c++) $(SELFDEP)
 #######################################
 # Build targets
 #######################################
-$(EXECUTABLE): $(LINK_OBJECTS) $(BUILDDIR)
-	$(VECHO) ' [$(CLRED)L$(CLRST)]   $(CLRED)$@$(CLRST) ...\n'
+$(EXECUTABLE): $(LINK_OBJECTS)
+	$(VECHO) ' [$(CLRED)LE$(CLRST)]  $(CLRED)$@$(CLRST) ...\n'
 	$(Q)$(LD) -o $@  $(LDFLAGS) $(subst ..,up,$(LINK_OBJECTS)) $(EXT_OBJECTS) $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(EXT_LIBS)) 
 
-$(BINARY): $(EXECUTABLE) $(BUILDDIR)
+$(BINARY): $(EXECUTABLE)
 	$(VECHO) ' [$(CLRED)B$(CLRST)]   $(CLRED)$@$(CLRST) ...\n'
-	$(Q)$(OC) -O binary $< $(@)
+	$(Q)$(OC) -O binary $< $@
 
-$(SHARED_LIB): $(LINK_OBJECTS) $(BUILDDIR)
-	$(VECHO)  ' [$(CLRED)L$(CLRST)]   $(CLRED)$@$(CLRST) ...\n'
+$(SHARED_LIB): $(LINK_OBJECTS)
+	$(VECHO)  ' [$(CLRED)LL$(CLRST)]   $(CLRED)$@$(CLRST) ...\n'
 	$(Q)$(LD) -shared -o $@  $(LDFLAGS) $(subst ..,up,$(LINK_OBJECTS)) $(EXT_OBJECTS) $(addprefix -L,$(LIBDIR)) $(addprefix -l,$(EXT_LIBS)) 
 
-$(STATIC_LIB): $(LINK_OBJECTS) $(BUILDDIR)
+$(STATIC_LIB): $(LINK_OBJECTS)
 	$(VECHO)  ' [$(CLRED)AR$(CLRST)]  $(CLRED)$@$(CLRST) ...\n'
 	$(Q)$(AR) -rc $@  $(subst ..,up,$(LINK_OBJECTS)) $(EXT_OBJECTS) 
 	$(VECHO)  ' [$(CLRED)RL$(CLRST)]  $(CLRED)$@$(CLRST) ...\n'
@@ -314,9 +322,6 @@ $(STATIC_LIB): $(LINK_OBJECTS) $(BUILDDIR)
 $(LISTING) : $(EXECUTABLE)
 	$(VECHO) ' [$(CLRED)LST$(CLRST)]   $(CLRED)$@$(CLRST) ...\n'
 	$(Q)$(LST) -d -t -S $< >$(@)
-
-$(BUILDDIR):
-	@mkdir $(BUILDDIR)
 
 #######################################
 # Include header dependencies
@@ -334,3 +339,96 @@ $(FOREIGN_MAKE_TARGETS):
 .PHONY: clean_foreign_targets
 clean_foreign_targets:
 	$(foreach var,$(FOREIGN_MAKE_TARGETS),$(MAKE) -C $(subst build/,,$(dir $(var))) clean;)
+
+#######################################
+# FLAGS
+#######################################
+COMMON_WARN += -Wabi=11
+COMMON_WARN += -Warray-bounds
+COMMON_WARN += -Wattributes
+COMMON_WARN += -Wcast-align
+COMMON_WARN += -Wcast-qual
+COMMON_WARN += -Wclobbered
+COMMON_WARN += -Wconversion
+COMMON_WARN += -Wcoverage-mismatch
+COMMON_WARN += -Wdisabled-optimization
+COMMON_WARN += -Wfloat-equal
+COMMON_WARN += -Wformat
+COMMON_WARN += -Wformat-nonliteral
+COMMON_WARN += -Wformat-security
+COMMON_WARN += -Wformat-y2k
+COMMON_WARN += -Wformat=2
+COMMON_WARN += -Winit-self
+COMMON_WARN += -Winline
+COMMON_WARN += -Winvalid-pch
+COMMON_WARN += -Wlogical-op
+# COMMON_WARN += -Wmissing-declarations
+COMMON_WARN += -Wmissing-format-attribute
+COMMON_WARN += -Wmissing-include-dirs
+COMMON_WARN += -Wmissing-noreturn
+COMMON_WARN += -Wno-attributes
+COMMON_WARN += -Wno-builtin-macro-redefined
+COMMON_WARN += -Wno-deprecated
+COMMON_WARN += -Wno-deprecated-declarations
+COMMON_WARN += -Wno-div-by-zero
+COMMON_WARN += -Wno-endif-labels
+COMMON_WARN += -Wno-format-contains-nul
+COMMON_WARN += -Wno-format-extra-args
+COMMON_WARN += -Wno-int-in-bool-context
+COMMON_WARN += -Wno-int-to-pointer-cast
+COMMON_WARN += -Wno-mudflap
+COMMON_WARN += -Wno-multichar
+COMMON_WARN += -Wno-narrowing
+COMMON_WARN += -Wno-overflow
+COMMON_WARN += -Wno-pragmas
+COMMON_WARN += -Wno-unused
+COMMON_WARN += -Wno-unused-function
+COMMON_WARN += -Wnonnull
+COMMON_WARN += -Woverlength-strings
+COMMON_WARN += -Wpacked
+COMMON_WARN += -Wpacked-bitfield-compat
+# COMMON_WARN += -Wpadded
+COMMON_WARN += -Wpointer-arith
+COMMON_WARN += -Wredundant-decls
+COMMON_WARN += -Wshadow
+COMMON_WARN += -Wsign-compare
+COMMON_WARN += -Wsign-conversion
+COMMON_WARN += -Wstack-protector
+COMMON_WARN += -Wstrict-aliasing=1
+COMMON_WARN += -Wstrict-overflow=2
+COMMON_WARN += -Wswitch-default
+COMMON_WARN += -Wswitch-enum
+COMMON_WARN += -Wsync-nand
+# COMMON_WARN += -Wsystem-headers
+COMMON_WARN += -Wundef
+COMMON_WARN += -Wunknown-pragmas
+COMMON_WARN += -Wunreachable-code
+COMMON_WARN += -Wunsafe-loop-optimizations
+COMMON_WARN += -Wvariadic-macros
+# COMMON_WARN += -Wvla
+COMMON_WARN += -Wvolatile-register-var
+COMMON_WARN += -Wwrite-strings
+
+C_WARN += -Wimplicit-function-declaration
+C_WARN += -Wimplicit-int
+C_WARN += -Wincompatible-pointer-types
+C_WARN += -Wint-conversion
+C_WARN += -Wno-pointer-sign
+C_WARN += -Wstrict-prototypes
+
+CXX_WARN += -Wctor-dtor-privacy
+CXX_WARN += -Wnon-virtual-dtor
+CXX_WARN += -Wreorder
+CXX_WARN += -Weffc++
+CXX_WARN += -Wold-style-cast
+CXX_WARN += -Wstrict-null-sentinel
+CXX_WARN += -Wno-non-template-friend
+CXX_WARN += -Woverloaded-virtual
+CXX_WARN += -Wno-literal-suffix
+CXX_WARN += -Wno-pmf-conversions
+CXX_WARN += -Wsign-promo
+CXX_WARN += -Wno-invalid-offsetof
+CXX_WARN += -Wc++0x-compat
+
+C_FULL_FLAGS   += -Wall -Wextra -Wpedantic $(COMMON_WARN) $(C_WARN)
+CXX_FULL_FLAGS += -Wall -Wextra -Wpedantic $(COMMON_WARN) $(CXX_WARN)
