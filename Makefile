@@ -16,6 +16,9 @@ EXT_LIBS += usb-1.0 m
 
 include core.mk
 
+install: $(EXECUTABLE)
+	cp $(EXECUTABLE) /usr/local/bin/
+
 TEST_OUTPUT=tests
 .PHONY: tests
 tests: $(EXECUTABLE)
