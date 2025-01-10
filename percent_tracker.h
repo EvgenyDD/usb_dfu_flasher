@@ -12,7 +12,7 @@ typedef struct
 } progress_tracker_t;
 
 #ifndef PERC_TRACKER_SCALER
-#define PERC_TRACKER_SCALER 10000.0
+#define PERC_TRACKER_SCALER 10000.0f
 #endif
 
 #define PERCENT_TRACKER_INIT(TRK) \
@@ -22,16 +22,16 @@ typedef struct
 	TRK.time_ms_est = 0;          \
 	TRK.time_ms_pass = 0;
 
-#define PERCENT_TRACKER_TRACK(TR, val, FUN)                                                        \
-	if(TR.progress_capt < roundf(PERC_TRACKER_SCALER * (float)(val)))                              \
-	{                                                                                              \
-		TR.progress_capt = roundf(PERC_TRACKER_SCALER * (float)(val));                             \
-		TR.progress = TR.progress_capt / PERC_TRACKER_SCALER;                                      \
-		struct timeval t1;                                                                         \
-		gettimeofday(&t1, NULL);                                                                   \
-		TR.time_ms_pass = (t1.tv_sec - TR.t0.tv_sec) * 1000 + (t1.tv_usec - TR.t0.tv_usec) / 1000; \
-		TR.time_ms_est = (uint64_t)((float)TR.time_ms_pass / TR.progress);                         \
-		FUN;                                                                                       \
+#define PERCENT_TRACKER_TRACK(TR, val, FUN)                                                                    \
+	if(TR.progress_capt < (uint64_t)roundf(PERC_TRACKER_SCALER * (float)(val)))                                \
+	{                                                                                                          \
+		TR.progress_capt = (uint64_t)roundf(PERC_TRACKER_SCALER * (float)(val));                               \
+		TR.progress = (float)TR.progress_capt / (uint64_t)PERC_TRACKER_SCALER;                                 \
+		struct timeval t1;                                                                                     \
+		gettimeofday(&t1, NULL);                                                                               \
+		TR.time_ms_pass = (uint64_t)((t1.tv_sec - TR.t0.tv_sec) * 1000 + (t1.tv_usec - TR.t0.tv_usec) / 1000); \
+		TR.time_ms_est = (uint64_t)((float)TR.time_ms_pass / TR.progress);                                     \
+		FUN;                                                                                                   \
 	}
 
 // ===== EXAMPLE =====

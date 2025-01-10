@@ -372,7 +372,7 @@ int main(int argc, char *argv[])
 				}
 
 				PERCENT_TRACKER_TRACK(tr, (double)off / (double)(content_length),
-									  { fprintf(stderr, "\rinfo:\t%.1f%% | pass: %ld sec | est: %ld sec\t\t",
+									  { fprintf(stderr, "\rinfo:\t%.1f%% | pass: %lld sec | est: %lld sec\t\t",
 												100.0 * tr.progress,
 												tr.time_ms_pass / 1000, tr.time_ms_est / 1000); });
 				fflush(stdout);

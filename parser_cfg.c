@@ -172,6 +172,7 @@ static int parse(uint8_t *content, size_t content_length)
 	}
 }
 
+int parse_file_cfg(const char *file_name);
 int parse_file_cfg(const char *file_name)
 {
 	FILE *f = fopen(file_name, "rb");

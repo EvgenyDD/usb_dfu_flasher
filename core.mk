@@ -1,5 +1,5 @@
 #######################################
-#           VERSION 2
+#           VERSION 2.2
 # #####       Manual:             #####
 #
 # 	EXE_NAME=my_prj
@@ -15,7 +15,9 @@
 # 
 # 	BUILDDIR = build
 # 
-#   EXT_LIBS+=setupapi
+#   ifneq (,$(findstring i,$(OS)))
+#     EXT_LIBS += setupapi
+#   endif
 #   LIBDIR+=
 #
 # 	FOREIGN_MAKE_TARGETS=extlib/build/libext.so
@@ -234,6 +236,18 @@ debug-make:
 	@echo ""
 	@echo "EXT OBJ:  " $(EXT_OBJECTS)
 
+UNAME_S := $(shell uname -s)
+UNAME_P := $(shell uname -p)
+
+.PHONY: sys-info
+sys-info:
+	@echo WIN: $(OS) $(PROCESSOR_ARCHITECTURE)
+	@echo UNIX: $(UNAME_S) $(UNAME_P)
+
+.PHONY: list-targets
+list-targets:
+	@LC_ALL=C $(MAKE) -pRrq -f $(firstword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/(^|\n)# Files(\n|$$)/,/(^|\n)# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | grep -E -v -e '^[^[:alnum:]]' -e '^$@$$'
+
 ifneq ($(FOREIGN_MAKE_TARGETS),)
 clean: clean_foreign_targets
 endif
@@ -343,13 +357,13 @@ clean_foreign_targets:
 #######################################
 # FLAGS
 #######################################
-COMMON_WARN += -Wabi=11
+# COMMON_WARN += -Wabi
 COMMON_WARN += -Warray-bounds
 COMMON_WARN += -Wattributes
 COMMON_WARN += -Wcast-align
 COMMON_WARN += -Wcast-qual
 COMMON_WARN += -Wclobbered
-COMMON_WARN += -Wconversion
+# COMMON_WARN += -Wconversion
 COMMON_WARN += -Wcoverage-mismatch
 COMMON_WARN += -Wdisabled-optimization
 COMMON_WARN += -Wfloat-equal
@@ -358,14 +372,15 @@ COMMON_WARN += -Wformat-nonliteral
 COMMON_WARN += -Wformat-security
 COMMON_WARN += -Wformat-y2k
 COMMON_WARN += -Wformat=2
+COMMON_WARN += -Wimplicit-fallthrough
 COMMON_WARN += -Winit-self
 COMMON_WARN += -Winline
 COMMON_WARN += -Winvalid-pch
 COMMON_WARN += -Wlogical-op
-# COMMON_WARN += -Wmissing-declarations
+COMMON_WARN += -Wmissing-declarations
 COMMON_WARN += -Wmissing-format-attribute
 COMMON_WARN += -Wmissing-include-dirs
-COMMON_WARN += -Wmissing-noreturn
+# COMMON_WARN += -Wmissing-noreturn
 COMMON_WARN += -Wno-attributes
 COMMON_WARN += -Wno-builtin-macro-redefined
 COMMON_WARN += -Wno-deprecated
@@ -389,23 +404,25 @@ COMMON_WARN += -Wpacked
 COMMON_WARN += -Wpacked-bitfield-compat
 # COMMON_WARN += -Wpadded
 COMMON_WARN += -Wpointer-arith
+COMMON_WARN += -Wpointer-sign
 COMMON_WARN += -Wredundant-decls
 COMMON_WARN += -Wshadow
 COMMON_WARN += -Wsign-compare
-COMMON_WARN += -Wsign-conversion
+# COMMON_WARN += -Wsign-conversion
 COMMON_WARN += -Wstack-protector
 COMMON_WARN += -Wstrict-aliasing=1
 COMMON_WARN += -Wstrict-overflow=2
 COMMON_WARN += -Wswitch-default
-COMMON_WARN += -Wswitch-enum
+# COMMON_WARN += -Wswitch-enum
 COMMON_WARN += -Wsync-nand
 # COMMON_WARN += -Wsystem-headers
-COMMON_WARN += -Wundef
+# COMMON_WARN += -Wundef
 COMMON_WARN += -Wunknown-pragmas
 COMMON_WARN += -Wunreachable-code
 COMMON_WARN += -Wunsafe-loop-optimizations
+COMMON_WARN += -Wunused-function
 COMMON_WARN += -Wvariadic-macros
-# COMMON_WARN += -Wvla
+COMMON_WARN += -Wvla
 COMMON_WARN += -Wvolatile-register-var
 COMMON_WARN += -Wwrite-strings
 

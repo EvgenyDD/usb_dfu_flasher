@@ -104,6 +104,7 @@ static void print_fields(uint8_t *content, uint32_t addr_fields_start, uint32_t 
 	}
 }
 
+int parse_file_fw(const char *file_name);
 int parse_file_fw(const char *file_name)
 {
 	FILE *f = fopen(file_name, "rb");
@@ -136,10 +137,10 @@ int parse_file_fw(const char *file_name)
 	for(; offset < 0x800 || offset < file_size; offset++)
 	{
 		sts = parse(&fw, &hdr, file_data, file_size, offset);
-		// if(sts) fprintf(stderr, "Error: %s\n", err2str(sts));
 		if(sts == LOCK_BY_ADDR ||
 		   sts == LOCK_BY_CRC ||
 		   sts == LOCK_BY_SIZE_SMALL) continue;
+		if(sts) fprintf(stderr, "Error: %s\n", err2str(sts));
 		fprintf(stderr, "@offset x%x\n", offset);
 		break;
 	}
