@@ -30,7 +30,6 @@ typedef struct timeval TS_V;
 #define TIME_DELTA_US(e, s) ((e.tv_sec - s.tv_sec) * 1000000LL + (e.tv_usec - s.tv_usec))
 
 #define PRINT_TIME_MS(ref)     \
-	TS_V tnow;                 \
 	gettimeofday(&tnow, NULL); \
 	printf("%lld", TIME_DELTA_MS(tnow, ref))
 
