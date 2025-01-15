@@ -140,12 +140,12 @@ static int find_usb_device(bool writing, const char *name, char *sub_name, FW_TY
 		// 	handle_close();
 		// 	continue;
 		// }
-		fprintf(stderr, "info:\tfound device %x::%x::%s\n", desc.idVendor, desc.idProduct, buf);
+		fprintf(stderr, "info:    found device %x::%x::%s\n", desc.idVendor, desc.idProduct, buf);
 
 		sts = sub_name ? dfu_halt_specific(fw_sel, sub_name) : dfu_halt();
 		if(sts < 0)
 		{
-			fprintf(stderr, "error:\tfailed to halt: %s\n", libusb_err2str(sts));
+			fprintf(stderr, "error:    failed to halt: %s\n", libusb_err2str(sts));
 			return -2;
 		}
 
@@ -155,16 +155,16 @@ static int find_usb_device(bool writing, const char *name, char *sub_name, FW_TY
 			sts = dfu_get_fw_type(&fw_type);
 			if(sts < 0)
 			{
-				fprintf(stderr, "error:\tfailed to get fw type: %d\n", sts);
+				fprintf(stderr, "error:    failed to get fw type: %d\n", sts);
 				return -3;
 			}
 			if(fw_sel == FW_APP && fw_type == FW_APP)
 			{
-				fprintf(stderr, "info:\trebooting%sto boot...\n", sub_name ? " sub " : " ");
+				fprintf(stderr, "info:    rebooting%sto boot...\n", sub_name ? " sub " : " ");
 				sts = dfu_reboot(sub_name != NULL);
 				if(sts < 0)
 				{
-					fprintf(stderr, "error:\tfailed to reboot%sto boot: %d\n", sub_name ? " sub " : " ", sts);
+					fprintf(stderr, "error:    failed to reboot%sto boot: %d\n", sub_name ? " sub " : " ", sts);
 					return -3;
 				}
 				handle_close();
@@ -173,11 +173,11 @@ static int find_usb_device(bool writing, const char *name, char *sub_name, FW_TY
 			}
 			else if(fw_sel == FW_BOOT && fw_type == FW_BOOT)
 			{
-				fprintf(stderr, "info:\trebooting%sto app...\n", sub_name ? " sub " : " ");
+				fprintf(stderr, "info:    rebooting%sto app...\n", sub_name ? " sub " : " ");
 				sts = dfu_reboot(sub_name != NULL);
 				if(sts < 0)
 				{
-					fprintf(stderr, "error:\tfailed to reboot%sto app: %d\n", sub_name ? " sub " : " ", sts);
+					fprintf(stderr, "error:    failed to reboot%sto app: %d\n", sub_name ? " sub " : " ", sts);
 					return -3;
 				}
 				handle_close();
@@ -225,11 +225,11 @@ static int parse_arg(char *argv[], int argc)
 {
 	if(argc != 5 && argc != 6 && argc != 7)
 	{
-		fprintf(stderr, "Error! USB FLASHER [ver. %s]: Wrong argument count!\nUsage:\n\t"
-						"  w/r                  - write/read operation\n\t"
-						"  p/b/a/c              - fw select: preboot/boot/app/config\n\t"
-						"  file                 - firmware binary\n\t"
-						"  name                 - device name\n\t"
+		fprintf(stderr, "Error! USB FLASHER [ver. %s]: Wrong argument count!\nUsage:\n"
+						"  w/r                  - write/read operation\n"
+						"  p/b/a/c              - fw select: preboot/boot/app/config\n"
+						"  file                 - firmware binary\n"
+						"  name                 - device name\n"
 						"  [optional]  sub name - remote flash device name\n"
 						"  [optional+] chunk    - chunk size\n",
 				USB_FLASHER_VER);
@@ -283,7 +283,7 @@ int main(int argc, char *argv[])
 	atexit(on_exit_cb);
 
 	sts = libusb_init(NULL);
-	if(sts < 0) fprintf(stderr, "error:\tfailed to initialize libusb: %s\n", libusb_err2str(sts));
+	if(sts < 0) fprintf(stderr, "error:    failed to initialize libusb: %s\n", libusb_err2str(sts));
 
 	libusb_set_option(NULL, LIBUSB_OPTION_LOG_LEVEL, 0);
 
@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
 		f = fopen(cfg.file_name, "rb");
 		if(!f)
 		{
-			fprintf(stderr, "error:\topen file %s\n", cfg.file_name);
+			fprintf(stderr, "error:    open file %s\n", cfg.file_name);
 			return ERR_FILE;
 		}
 
@@ -302,17 +302,17 @@ int main(int argc, char *argv[])
 		size_t read = fread(content, 1, content_length, f);
 		if(read != content_length)
 		{
-			fprintf(stderr, "error:\tread file (%zu %zu)\n", read, content_length);
+			fprintf(stderr, "error:    read file (%zu %zu)\n", read, content_length);
 			return ERR_FILE_READ;
 		}
 
-		fprintf(stderr, "info:\tflashing %s %s to \"%s%s%s\" (%zu bytes)...\n",
+		fprintf(stderr, "info:    flashing %s %s to \"%s%s%s\" (%zu bytes)...\n",
 				cfg.file_name, fw_type_str[cfg.sel], cfg.dev_name, cfg.sub_name ? ":" : "", cfg.sub_name ? cfg.sub_name : "", content_length);
 
 		cnt = libusb_get_device_list(NULL, &list);
-		if(cnt < 0) fprintf(stderr, "error\tlibusb: failed to get device list\n");
+		if(cnt < 0) fprintf(stderr, "error    libusb: failed to get device list\n");
 
-		// fprintf(stderr, "info:\tfound %lld USB devices\n", cnt);
+		// fprintf(stderr, "info:    found %lld USB devices\n", cnt);
 
 		sts = find_usb_device(cfg.write, cfg.dev_name, cfg.sub_name, cfg.sel);
 		if(sts == 1)
@@ -324,12 +324,12 @@ int main(int argc, char *argv[])
 				if(list) libusb_free_device_list(list, 1);
 
 				cnt = libusb_get_device_list(NULL, &list);
-				if(cnt < 0) fprintf(stderr, "error\tlibusb: failed to get device list\n");
+				if(cnt < 0) fprintf(stderr, "error    libusb: failed to get device list\n");
 
 				sts = find_usb_device(cfg.write, cfg.dev_name, cfg.sub_name, cfg.sel);
 				if(sts != 0 && i == RETRY - 1)
 				{
-					fprintf(stderr, "error:\tfailed to reboot device \"%s%s%s\" 2nd time\n", cfg.dev_name, cfg.sub_name ? ":" : "", cfg.sub_name ? cfg.sub_name : "");
+					fprintf(stderr, "error:    failed to reboot device \"%s%s%s\" 2nd time\n", cfg.dev_name, cfg.sub_name ? ":" : "", cfg.sub_name ? cfg.sub_name : "");
 					return ERR_REBOOT;
 				}
 				if(!sts) break;
@@ -338,7 +338,7 @@ int main(int argc, char *argv[])
 		}
 		else if(sts != 0)
 		{
-			fprintf(stderr, "error:\tfailed to find device \"%s%s%s\"\n", cfg.dev_name, cfg.sub_name ? ":" : "", cfg.sub_name ? cfg.sub_name : "");
+			fprintf(stderr, "error:    failed to find device \"%s%s%s\"\n", cfg.dev_name, cfg.sub_name ? ":" : "", cfg.sub_name ? cfg.sub_name : "");
 			return ERR_REBOOT;
 		}
 
@@ -366,23 +366,23 @@ int main(int argc, char *argv[])
 				}
 				if(sts_dfu_write < 0)
 				{
-					fprintf(stderr, "error:\tfailed to write (%s) @%d\n", libusb_err2str(sts), off);
+					fprintf(stderr, "error:    failed to write (%s) @%d\n", libusb_err2str(sts), off);
 					errc = ERR_WR;
 					break;
 				}
 
 				PERCENT_TRACKER_TRACK(tr, (double)off / (double)(content_length),
-									  { fprintf(stderr, "\rinfo:\t%.1f%% | pass: %lld sec | est: %lld sec        ",
+									  { fprintf(stderr, "\rinfo:    %.1f%% | pass: %lld sec | est: %lld sec        ",
 												100.0 * tr.progress, tr.time_ms_pass / 1000, tr.time_ms_est / 1000); });
 				fflush(stdout);
 			}
 			if(errc == 0)
 			{
-				fprintf(stderr, "\rinfo:\t100.0%% | pass: %.3f sec | speed: %.2f kB/s\t\t",
+				fprintf(stderr, "\rinfo:    100.0%% | pass: %.3f sec | speed: %.2f kB/s        ",
 						(double)tr.time_ms_pass * 0.001, (double)(content_length / (double)tr.time_ms_pass));
 				break;
 			}
-			if(retry != RETRY_CNT - 1) fprintf(stderr, "error:\ttrying again...\n");
+			if(retry != RETRY_CNT - 1) fprintf(stderr, "error:    trying again...\n");
 		}
 		fprintf(stderr, "\n");
 
@@ -390,22 +390,22 @@ int main(int argc, char *argv[])
 		{
 			uint8_t fw_sts[3];
 			sts = dfu_get_fw_sts(fw_sts);
-			if(sts < 0) fprintf(stderr, "error:\tfailed to get fw sts: %s\n", libusb_err2str(sts));
+			if(sts < 0) fprintf(stderr, "error:    failed to get fw sts: %s\n", libusb_err2str(sts));
 			if(fw_sts[0] || fw_sts[1] || fw_sts[2])
 			{
-				fprintf(stderr, "error:\tfailed to check HW (%d %d %d)\n", fw_sts[0], fw_sts[1], fw_sts[2]);
+				fprintf(stderr, "error:    failed to check HW (%d %d %d)\n", fw_sts[0], fw_sts[1], fw_sts[2]);
 				errc = ERR_CHK;
 			}
 		}
 
-		fprintf(stderr, errc ? "error:\tupdate failed\n" : "info:\tOK, exiting...\n");
+		fprintf(stderr, errc ? "error:    update failed\n" : "info:    OK, exiting...\n");
 
 		if(errc == 0)
 		{
 			sts = dfu_reboot(cfg.sub_name != NULL);
 			if(sts < 0)
 			{
-				fprintf(stderr, "error:\tfailed to reboot: %s\n", libusb_err2str(sts));
+				fprintf(stderr, "error:    failed to reboot: %s\n", libusb_err2str(sts));
 				errc = ERR_REBOOT;
 			}
 		}
@@ -417,17 +417,17 @@ int main(int argc, char *argv[])
 		f = fopen(cfg.file_name, "wb");
 		if(!f)
 		{
-			fprintf(stderr, "error:\topen file %s\n", cfg.file_name);
+			fprintf(stderr, "error:    open file %s\n", cfg.file_name);
 			return ERR_FILE;
 		}
-		fprintf(stderr, "info:\treading \"%s%s%s\" %s to %s...\n", cfg.dev_name, cfg.sub_name ? ":" : "", cfg.sub_name ? cfg.sub_name : "", fw_type_str[cfg.sel], cfg.file_name);
+		fprintf(stderr, "info:    reading \"%s%s%s\" %s to %s...\n", cfg.dev_name, cfg.sub_name ? ":" : "", cfg.sub_name ? cfg.sub_name : "", fw_type_str[cfg.sel], cfg.file_name);
 
 		cnt = libusb_get_device_list(NULL, &list);
-		if(cnt < 0) fprintf(stderr, "error\tlibusb: failed to get device list\n");
+		if(cnt < 0) fprintf(stderr, "error    libusb: failed to get device list\n");
 		sts = find_usb_device(cfg.write, cfg.dev_name, cfg.sub_name, cfg.sel);
 		if(sts)
 		{
-			fprintf(stderr, "error:\tfailed to find device \"%s\"\n", cfg.dev_name);
+			fprintf(stderr, "error:    failed to find device \"%s\"\n", cfg.dev_name);
 			return ERR_REBOOT;
 		};
 
@@ -473,12 +473,12 @@ int main(int argc, char *argv[])
 			size_t wr_cnt = fwrite(pkt, 1, (size_t)sts, f);
 			if(wr_cnt != (size_t)sts)
 			{
-				fprintf(stderr, "error:\tfailed to write to file %s\n", cfg.file_name);
+				fprintf(stderr, "error:    failed to write to file %s\n", cfg.file_name);
 				errc = 1;
 				break;
 			}
 		}
-		fprintf(stderr, errc ? "Error!\n" : "info:\tOK, exiting...\n");
+		fprintf(stderr, errc ? "Error!\n" : "info:    OK, exiting...\n");
 		return errc;
 	}
 }

@@ -2,7 +2,7 @@ EXE_NAME=usb_dfu_flasher
 
 SOURCES += $(call rwildcard, ., *.c *.S *.s)
 
-ifneq ($(findstring MINGW32,$(uname)),)
+ifneq (,$(findstring Windows,$(OS)))
 TCHAIN = x86_64-w64-mingw32-
 # pacman -S mingw-w64-x86_64-libusb
 endif
